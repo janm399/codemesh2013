@@ -52,7 +52,7 @@ private[core] object RecogSessionActor {
 trait RecogSessionActorFormats extends DefaultJsonProtocol {
   import RecogSessionActor._
 
-  implicit val PointFormat = jsonFormat2()
+  implicit val PointFormat = jsonFormat2(Point)
   implicit val CoinFormat = jsonFormat2(Coin)
   implicit val CoinResponseFormat = jsonFormat2(CoinResponse)
 }
