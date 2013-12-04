@@ -163,7 +163,7 @@
 }
 
 - (void)cvServerConnectionFailed:(NSError *)reason {
-	NSLog(@":((");
+	NSLog(@":(( %@", reason);
 }
 
 @end

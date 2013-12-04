@@ -19,6 +19,6 @@ trait Api {
   val streamingRecogService = system.actorOf(Props(new StreamingRecogService(coordinator)))
 
   private val io = IO(Http)(system)
-  io ! Http.Bind(streamingRecogService, "localhost", port = 8080)
+  io ! Http.Bind(streamingRecogService, "0.0.0.0", port = 8080)
 
 }
