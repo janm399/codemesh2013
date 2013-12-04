@@ -3,7 +3,6 @@
 #define FRAMES_PER_SECOND_MOD 7
 
 @implementation ViewController {
-	CVServerConnection *serverConnection;
 	CVServerTransactionConnection *serverTransactionConnection;
 	id<CVServerConnectionInput> serverConnectionInput;
 	
@@ -19,13 +18,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	capturing = false;
-	[self.statusLabel setText:@""];
-	NSURL *serverBaseUrl = [NSURL URLWithString:@"http://192.168.0.5:8080/recog"];
-	serverConnection = [CVServerConnection connection:serverBaseUrl];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
+}
+
+- (CVServerConnection*)serverConnection {
+	NSString* server = [NSString stringWithFormat:@"http://%@:8080/recog", self.ip.text];
+	NSURL *serverBaseUrl = [NSURL URLWithString:server];
+	return [CVServerConnection connection:serverBaseUrl];
 }
 
 #pragma mark - Video capture (using the back camera)
@@ -64,7 +66,7 @@
 	[captureSession startRunning];
 	
 	// begin a transaction
-	serverTransactionConnection = [serverConnection begin:nil];
+	serverTransactionConnection = [[self serverConnection] begin:nil];
 	
 	// (a) using static images
 	//serverConnectionInput = [serverTransactionConnection staticInput:self];
@@ -126,7 +128,7 @@
 - (IBAction)predefStopStart:(id)sender {
 	self.startStopButton.enabled = false;
 
-	serverTransactionConnection = [serverConnection begin:nil];
+	serverTransactionConnection = [[self serverConnection] begin:nil];
 	serverConnectionInput = [serverTransactionConnection h264Input:self];
 	
 	dispatch_queue_t queue = dispatch_queue_create("Predef", NULL);

@@ -21,6 +21,7 @@
 		541E79C5174CD76300AD248A /* DocumentPreflight.m in Sources */ = {isa = PBXBuildFile; fileRef = 541E79C4174CD76300AD248A /* DocumentPreflight.m */; };
 		542C48A1175D07F000C08E3D /* coins2.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 542C48A0175D07F000C08E3D /* coins2.mp4 */; };
 		54AC06B6174EA54B0031E2F2 /* ImageEncoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 54AC06B5174EA54B0031E2F2 /* ImageEncoder.m */; };
+		54B1A0FE184F1526009F3D99 /* MJPEGReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 54B1A0FD184F1526009F3D99 /* MJPEGReader.m */; };
 		54B38AA51752AE4D00A4D17F /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54F8704A17462702006F6C0F /* CoreImage.framework */; };
 		54B38AAD1753772E00A4D17F /* AVEncoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = 54B38AA81753772E00A4D17F /* AVEncoder.mm */; };
 		54B38AAE1753772E00A4D17F /* MP4Atom.m in Sources */ = {isa = PBXBuildFile; fileRef = 54B38AAA1753772E00A4D17F /* MP4Atom.m */; };
@@ -75,6 +76,8 @@
 		542C48A0175D07F000C08E3D /* coins2.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = coins2.mp4; sourceTree = "<group>"; };
 		54AC06B4174EA54B0031E2F2 /* ImageEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageEncoder.h; sourceTree = "<group>"; };
 		54AC06B5174EA54B0031E2F2 /* ImageEncoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageEncoder.m; sourceTree = "<group>"; };
+		54B1A0FC184F1526009F3D99 /* MJPEGReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MJPEGReader.h; sourceTree = "<group>"; };
+		54B1A0FD184F1526009F3D99 /* MJPEGReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MJPEGReader.m; sourceTree = "<group>"; };
 		54B38AA71753772E00A4D17F /* AVEncoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVEncoder.h; sourceTree = "<group>"; };
 		54B38AA81753772E00A4D17F /* AVEncoder.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AVEncoder.mm; sourceTree = "<group>"; };
 		54B38AA91753772E00A4D17F /* MP4Atom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MP4Atom.h; sourceTree = "<group>"; };
@@ -145,6 +148,8 @@
 				541E79C4174CD76300AD248A /* DocumentPreflight.m */,
 				54AC06B4174EA54B0031E2F2 /* ImageEncoder.h */,
 				54AC06B5174EA54B0031E2F2 /* ImageEncoder.m */,
+				54B1A0FC184F1526009F3D99 /* MJPEGReader.h */,
+				54B1A0FD184F1526009F3D99 /* MJPEGReader.m */,
 			);
 			path = CV;
 			sourceTree = "<group>";
@@ -353,6 +358,7 @@
 				54B38AB21753774400A4D17F /* VideoEncoder.m in Sources */,
 				54B38AC71753CD1A00A4D17F /* RTSPClientConnection.mm in Sources */,
 				54B38AC81753CD1A00A4D17F /* RTSPMessage.m in Sources */,
+				54B1A0FE184F1526009F3D99 /* MJPEGReader.m in Sources */,
 				54B38AC91753CD1A00A4D17F /* RTSPServer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
