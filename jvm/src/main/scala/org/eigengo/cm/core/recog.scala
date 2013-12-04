@@ -136,7 +136,7 @@ private[core] class RecogSessionActor(amqpConnection: ActorRef, jabberActor: Act
   }
 
   // go!
-  initialize
+  initialize()
 
   // cleanup
   override def postStop() {
