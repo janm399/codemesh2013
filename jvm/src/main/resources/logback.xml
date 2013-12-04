@@ -10,7 +10,7 @@
     <appender-ref ref="console" />
   </logger>
 
-  <logger name="org.eigengo.sd" level="debug" additivity="false">
+  <logger name="org.eigengo.cm" level="debug" additivity="false">
     <appender-ref ref="console" />
   </logger>
 

@@ -36,10 +36,8 @@ libraryDependencies ++= Seq(
 
 parallelExecution in Test := false
 
-//  retrieveManaged := true
-
 transitiveClassifiers := Seq("sources")
 
-initialCommands in console := "import org.eigengo.sd._,akka.actor._"
+initialCommands in console := "import org.eigengo.cm._,akka.actor._"
 
 initialCommands in (Test, console) <<= (initialCommands in console)(_ + ",akka.testkit._")
