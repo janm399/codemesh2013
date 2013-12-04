@@ -141,7 +141,6 @@
 			[NSThread sleepForTimeInterval:.25];		// 16000 * 4 Bps ~ 64 kB/s
 			if (data.length == 0) break;
 		}
-		[serverConnectionInput submitFrameRaw:[[NSData alloc] init]];
 		[serverConnectionInput stopRunning];
 		[fileHandle closeFile];
 	});
