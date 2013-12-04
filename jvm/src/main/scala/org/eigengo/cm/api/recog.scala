@@ -5,18 +5,16 @@ import spray.http._
 import spray.http.HttpResponse
 import scala.util.Success
 import scala.util.Failure
-import org.eigengo.cm.core.Begin
-import org.eigengo.cm.core.CoordinatorActor.{ SingleImage, FrameChunk }
 import spray.can.Http
 import spray.can.Http.RegisterChunkHandler
+import org.eigengo.cm.core.CoordinatorActor
 
 object StreamingRecogService {
   def makePattern(start: String) = (start + """(.*)""").r
 
-  val RootUri = "/recog"
-  val MJPEGUri = makePattern("/recog/mjpeg/")
-  val H264Uri = makePattern("/recog/h264/")
-  val RtspUri = makePattern("/recog/rtsp/")
+  val RootUri   = "/recog"
+  val MJPEGUri  = makePattern("/recog/mjpeg/")
+  val H264Uri   = makePattern("/recog/h264/")
   val StaticUri = makePattern("/recog/static/")
 }
 
@@ -29,10 +27,12 @@ object StreamingRecogService {
 class StreamingRecogService(coordinator: ActorRef) extends Actor {
   import akka.pattern.ask
   import scala.concurrent.duration._
-  import context.dispatcher
-  implicit val timeout = akka.util.Timeout(2.seconds)
-
+  import CoordinatorActor._
   import StreamingRecogService._
+
+  import context.dispatcher
+
+  implicit val timeout = akka.util.Timeout(2.seconds)
 
   def receive = {
     case _: Http.Connected =>
@@ -48,18 +48,17 @@ class StreamingRecogService(coordinator: ActorRef) extends Actor {
           }
         case StaticUri(sessionId) =>
           coordinator ! SingleImage(sessionId, entity.data.toByteArray, true)
-        case RtspUri(sessionId) =>
-          sender ! HttpResponse(entity = "Listening to " + entity.asString)
       }
 
-    // stream to /recog/mjpeg/:id
+    // stream begin to /recog/[h264|mjpeg]/:id
     case ChunkedRequestStart(HttpRequest(HttpMethods.POST, uri, _, entity, _)) =>
       uri.path.toString() match {
         case MJPEGUri(sessionId) => coordinator ! SingleImage(sessionId, entity.data.toByteArray, false)
         case H264Uri(sessionId)  => coordinator ! FrameChunk(sessionId, entity.data.toByteArray, false)
       }
       sender ! RegisterChunkHandler(self)
-    // stream to /recog/h264/:id
+
+    // stream mid to /recog/[h264|mjpeg]/:id; see above ^
     case MessageChunk(data, _) =>
       // Ghetto: we say that the chunk's bytes are
       //  * 0 - 35: the session ID in ASCII encoding
@@ -81,14 +80,15 @@ class StreamingRecogService(coordinator: ActorRef) extends Actor {
 
       // our work is done: bang it to the coordinator.
       coordinator ! message
+
+    // stream end to /recog/[h264|mjpeg]/:id; see above ^^
     case ChunkedMessageEnd(_, _) =>
       // we say nothing back
       sender ! HttpResponse(entity = "{}")
 
     // all other requests
     case HttpRequest(method, uri, _, _, _) =>
-      println(s"XXX $uri")
-      sender ! HttpResponse(entity = "No such endpoint. That's all we know.", status = StatusCodes.NotFound)
+      sender ! HttpResponse(entity = s"No such endpoint $method at $uri. That's all we know.", status = StatusCodes.NotFound)
   }
 
 }

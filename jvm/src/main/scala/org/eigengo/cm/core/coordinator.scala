@@ -5,6 +5,8 @@ import java.util.UUID
 import akka.routing.FromConfig
 
 object CoordinatorActor {
+  // Begin the recognition session
+  case class Begin(minCoins: Int)
 
   // Single ``image`` to session ``id``
   case class SingleImage(id: String, image: Array[Byte], end: Boolean)

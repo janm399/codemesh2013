@@ -4,8 +4,6 @@ import akka.actor.{ Props, ActorSystem }
 import com.rabbitmq.client.ConnectionFactory
 import com.github.sstone.amqp.ConnectionOwner
 
-case class Begin(minCoins: Int)
-
 /**
  * Contains configuration for the core
  */
@@ -23,7 +21,11 @@ trait ConfigCoreConfiguration extends CoreConfiguration {
 
   private val amqpHost = system.settings.config.getString("spray-akka.amqp.host")
   // connection factory
-  lazy val amqpConnectionFactory = new ConnectionFactory(); amqpConnectionFactory.setHost(amqpHost)
+  lazy val amqpConnectionFactory = {
+    val cf = new ConnectionFactory()
+    cf.setHost(amqpHost)
+    cf
+  }
 
 }
 

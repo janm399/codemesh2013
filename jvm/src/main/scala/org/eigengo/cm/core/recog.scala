@@ -104,7 +104,7 @@ private[core] class RecogSessionActor(amqpConnection: ActorRef, jabberActor: Act
       decoder.close()
       goto(Completed)
 
-    case Event(Frame(frame, _), r @ Running(minCoins, None)) =>
+    case Event(Frame(frame, _), r@Running(minCoins, None)) =>
       // Frame with no decoder yet. We will be needing the H264DecoderContext.
       val decoder = new H264DecoderContext(countCoins(minCoins))
       decoder.decode(frame, true)
