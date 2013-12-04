@@ -23,7 +23,7 @@ trait ConfigCoreConfiguration extends CoreConfiguration {
 
   private val amqpHost = system.settings.config.getString("spray-akka.amqp.host")
   // connection factory
-  val amqpConnectionFactory = new ConnectionFactory(); amqpConnectionFactory.setHost(amqpHost)
+  lazy val amqpConnectionFactory = new ConnectionFactory(); amqpConnectionFactory.setHost(amqpHost)
 
 }
 

@@ -1,6 +1,6 @@
 package org.eigengo.sd.core
 
-import akka.actor.{ ActorRef, Props, Actor }
+import akka.actor.{ActorSelection, ActorRef, Props, Actor}
 import java.util.UUID
 import akka.routing.FromConfig
 
@@ -50,6 +50,6 @@ class CoordinatorActor(amqpConnection: ActorRef) extends Actor {
   }
 
   // finds an ``ActorRef`` for the given session.
-  private def sessionActorFor(id: String): ActorRef = context.actorFor(id)
+  private def sessionActorFor(id: String): ActorSelection = context.actorSelection(id)
 
 }

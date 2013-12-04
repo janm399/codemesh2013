@@ -11,7 +11,7 @@ import org.eigengo.sd.core.CoordinatorActor.{ SingleImage, FrameChunk }
 object StreamingRecogService {
   def makePattern(start: String) = (start + """(.*)""").r
 
-  val RootUri = "/recog"
+  val RootUri = Uri("/recog")
   val MJPEGUri = makePattern("/recog/mjpeg/")
   val H264Uri = makePattern("/recog/h264/")
   val RtspUri = makePattern("/recog/rtsp/")
@@ -43,17 +43,18 @@ class StreamingRecogService(coordinator: ActorRef) extends Actor {
 
     // stream to /recog/mjpeg/:id
     case ChunkedRequestStart(HttpRequest(HttpMethods.POST, MJPEGUri(sessionId), _, entity, _)) =>
-      coordinator ! SingleImage(sessionId, entity.buffer, false)
+      coordinator ! SingleImage(sessionId, entity.data.toByteArray, false)
     // stream to /recog/h264/:id
     case ChunkedRequestStart(HttpRequest(HttpMethods.POST, H264Uri(sessionId), _, entity, _)) =>
-      coordinator ! FrameChunk(sessionId, entity.buffer, false)
-    case MessageChunk(body, extensions) =>
+      coordinator ! FrameChunk(sessionId, entity.data.toByteArray, false)
+    case MessageChunk(data, extensions) =>
       // Ghetto: we say that the chunk's bytes are
       //  * 0 - 35: the session ID in ASCII encoding
       //  * 36    : the kind of chunk (H.264, JPEG, ...)
       //  * 37    : indicator whether this chunk is the end of some larger logical unit (i.e. image)
 
       // parse the body
+      val body = data.toByteArray
       val frame = Array.ofDim[Byte](body.length - 38)
       Array.copy(body, 38, frame, 0, frame.length)
 
@@ -73,7 +74,7 @@ class StreamingRecogService(coordinator: ActorRef) extends Actor {
 
     // POST to /recog/static/:id
     case HttpRequest(HttpMethods.POST, StaticUri(sessionId), _, entity, _) =>
-      coordinator ! SingleImage(sessionId, entity.buffer, true)
+      coordinator ! SingleImage(sessionId, entity.data.toByteArray, true)
 
     // POST to /recog/rtsp/:id
     case HttpRequest(HttpMethods.POST, RtspUri(sessionId), _, entity, _) =>
