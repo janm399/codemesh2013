@@ -19,9 +19,9 @@ trait CoreConfiguration {
 trait ConfigCoreConfiguration extends CoreConfiguration {
   def system: ActorSystem
 
-  private val amqpHost = system.settings.config.getString("spray-akka.amqp.host")
   // connection factory
   lazy val amqpConnectionFactory = {
+    val amqpHost = system.settings.config.getString("spray-akka.amqp.host")
     val cf = new ConnectionFactory()
     cf.setHost(amqpHost)
     cf
@@ -36,12 +36,12 @@ trait Core {
   this: CoreConfiguration =>
 
   // start the actor system
-  implicit val system = ActorSystem("recog")
+  implicit lazy val system = ActorSystem("recog")
 
   // create a "connection owner" actor, which will try and reconnect automatically if the connection ins lost
-  val amqpConnection = system.actorOf(Props(new ConnectionOwner(amqpConnectionFactory)))
+  lazy val amqpConnection = system.actorOf(Props(new ConnectionOwner(amqpConnectionFactory)))
 
   // create the coordinator actor
-  val coordinator = system.actorOf(Props(new CoordinatorActor(amqpConnection)), "coordinator")
+  lazy val coordinator = system.actorOf(Props(new CoordinatorActor(amqpConnection)), "coordinator")
 
 }

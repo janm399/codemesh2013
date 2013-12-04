@@ -31,9 +31,8 @@ object Shell extends App with Core with ConfigCoreConfiguration {
       case QuitCommand => return
       case BeginCommand(count) => coordinator ! Begin(count.toInt)
       case GetSessionsCommand => coordinator ! GetSessions
-      case ImageCommand(id, fileName) => coordinator ! SingleImage(id, readAll(fileName), true)
-      case H264Command(id, fileName) => readChunks(fileName, 64)(coordinator ! FrameChunk(id, _, true))
-      case GetInfoCommand(id) => coordinator ! GetInfo(id)
+      case ImageCommand(id, fileName) => coordinator ! SingleImage(id, readAll(fileName))
+      case H264Command(id, fileName) => readChunks(fileName, 64)(coordinator ! FrameChunk(id, _))
 
       case _ => println("WTF??!!")
     }

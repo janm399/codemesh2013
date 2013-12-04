@@ -21,18 +21,13 @@
 @interface BlockingQueueInputStream : NSInputStream {
 @private
     NSData *data;
-	NSData *chunkHeader;
 	dispatch_semaphore_t readLock;
 	dispatch_semaphore_t writeLock;
 }
-  /**
-   * Make an instance of the stream; set up the locks.
-   */
-- (id)initWithChunkHeader:(NSData*)chunkHeader;
 
-  /**
-   * Make the ``data`` available to reading. Blocks if the existing data has not yet been all read.
-   * @param data the data to be made available for ``-read``ing
-   */
+/**
+ * Make the ``data`` available to reading. Blocks if the existing data has not yet been all read.
+ * @param data the data to be made available for ``-read``ing
+ */
 - (void)appendData:(NSData*)data;
 @end

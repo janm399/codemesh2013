@@ -186,10 +186,7 @@
 	stats.requestCount = 1;
 	stats.networkTime = 0;
 	
-	NSData* sessionIdData = [sessionId dataUsingEncoding:NSASCIIStringEncoding];
-	NSMutableData *chunkHeader = [NSMutableData dataWithData:sessionIdData];
-	[chunkHeader appendData:[self marker]];
-	stream = [[BlockingQueueInputStream alloc] initWithChunkHeader:chunkHeader];
+	stream = [[BlockingQueueInputStream alloc] init];
 	
 	NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
 	[request setTimeoutInterval:30.0];
@@ -231,10 +228,6 @@
 	AVEncoder* encoder;
 }
 
-- (NSData*)marker {
-	return [@"H" dataUsingEncoding:NSASCIIStringEncoding];
-}
-
 - (void)initConnectionInput {
 	[super initConnectionInput];
 	
@@ -264,10 +257,6 @@
 @end
 
 @implementation CVServerConnectionInputMJPEG 
-
-- (NSData*)marker {
-	return [@"M" dataUsingEncoding:NSASCIIStringEncoding];
-}
 
 - (void)initConnectionInput {
 	[super initConnectionInput];

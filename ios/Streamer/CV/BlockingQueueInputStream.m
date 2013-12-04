@@ -3,23 +3,18 @@
 @implementation BlockingQueueInputStream {
     NSStreamStatus streamStatus;
     id <NSStreamDelegate> delegate;
-	NSData *end;
-	NSData *mid;
 	int chunkSize;
 }
 
-- (id)initWithChunkHeader:(NSData *)aChunkHeader {
-    self = [super init];
+- (id)init {
+	self = [super init];
     if (self) {
         // Initialization code here.
         streamStatus = NSStreamStatusNotOpen;
 		readLock = dispatch_semaphore_create(0);
 		writeLock = dispatch_semaphore_create(1);
 		data = nil;
-		chunkHeader = aChunkHeader;
-		end = [@"E" dataUsingEncoding:NSASCIIStringEncoding];
-		mid = [@"M" dataUsingEncoding:NSASCIIStringEncoding];
-		chunkSize = 32768 - chunkHeader.length - 1;
+		chunkSize = 32768 - 1;
     }
     
     return self;
@@ -71,13 +66,7 @@
 
 - (void)appendData:(NSData *)aData {
 	dispatch_semaphore_wait(writeLock, DISPATCH_TIME_FOREVER);
-	NSMutableData *newData = [NSMutableData dataWithData:chunkHeader];
-	if (aData.length > chunkSize) {
-		[newData appendData:mid];
-	} else {
-		[newData appendData:end];
-	}
-	[newData appendData:aData];
+	NSData *newData = [NSMutableData dataWithData:aData];
 	data = newData;
 	dispatch_semaphore_signal(readLock);
 }
@@ -99,13 +88,7 @@
 	
 	if (dataLen > len) {
 		NSLog(@"len = %d", len);
-		NSMutableData *newData = [NSMutableData dataWithData:chunkHeader];
-		if (newData.length - chunkHeader.length - 1 > chunkSize) {
-			[newData appendData:mid];
-		} else {
-			[newData appendData:end];
-		}
-		[newData appendData:[data subdataWithRange:NSMakeRange(len, dataLen - len)]];
+		NSMutableData *newData = [NSMutableData dataWithData:[data subdataWithRange:NSMakeRange(len, dataLen - len)]];
 		data = newData;
 		dispatch_semaphore_signal(readLock);
 	} else {

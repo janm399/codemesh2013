@@ -15,12 +15,9 @@ import spray.json.{ JsonParser, JsonReader, DefaultJsonProtocol }
 private[core] object RecogSessionActor {
 
   // receive image to be processed
-  private[core] case class Image(image: Array[Byte], end: Boolean)
+  private[core] case class Image(image: Array[Byte]) extends AnyVal
   // receive chunk of a frame to be processed
-  private[core] case class Frame(frameChunk: Array[Byte], end: Boolean)
-
-  // information about the running session
-  private[core] case object GetInfo
+  private[core] case class Frame(frameChunk: Array[Byte]) extends AnyVal
 
   // FSM states
   private[core] sealed trait State
@@ -32,7 +29,8 @@ private[core] object RecogSessionActor {
   // FSM data
   private[core] sealed trait Data
   private[core] case object Empty extends Data
-  private[core] case class Running(minCoins: Int, decoder: Option[DecoderContext]) extends Data
+  private[core] case class Starting(minCoins: Int) extends Data
+  private[core] case class Running(decoder: DecoderContext) extends Data
 
   // CV responses
   private[core] case class Point(x: Int, y: Int)
@@ -68,6 +66,7 @@ trait RecogSessionActorFormats extends DefaultJsonProtocol {
 private[core] class RecogSessionActor(amqpConnection: ActorRef, jabberActor: ActorRef) extends Actor with FSM[RecogSessionActor.State, RecogSessionActor.Data] with AmqpOperations with RecogSessionActorFormats with ImageEncoding {
 
   import RecogSessionActor._
+  import CoordinatorActor._
   import scala.concurrent.duration._
   import context.dispatcher
 
@@ -85,35 +84,35 @@ private[core] class RecogSessionActor(amqpConnection: ActorRef, jabberActor: Act
   when(Idle, stateTimeout) {
     case Event(Begin(minCoins), _) =>
       sender ! self.path.name
-      goto(Active) using Running(minCoins, None)
+      goto(Active) using Starting(minCoins)
   }
 
   // when ``Active``, we can process images and frames
   when(Active, stateTimeout) {
-    case Event(Image(image, end), r @ Running(minCoins, None)) =>
+    case Event(Image(image), Starting(minCoins)) =>
       // Image with no decoder yet. We will be needing the ChunkingDecoderContext.
       val decoder = new ChunkingDecoderContext(countCoins(minCoins))
-      decoder.decode(image, end)
-      stay() using r.copy(decoder = Some(decoder))
-    case Event(Image(image, end), Running(minCount, Some(decoder: ImageDecoderContext))) if image.length > 0 =>
+      decoder.decode(image, false)
+      stay() using Running(decoder)
+    case Event(Image(image), Running(decoder)) if image.length > 0 =>
       // Image with existing decoder. Shut up and apply.
-      decoder.decode(image, end)
+      decoder.decode(image, false)
       stay()
-    case Event(Image(_, _), Running(_, Some(decoder))) =>
+    case Event(Image(_), Running(decoder)) =>
       // Empty image (following the previous case)
       decoder.close()
       goto(Completed)
 
-    case Event(Frame(frame, _), r@Running(minCoins, None)) =>
+    case Event(Frame(frame), Starting(minCoins)) =>
       // Frame with no decoder yet. We will be needing the H264DecoderContext.
       val decoder = new H264DecoderContext(countCoins(minCoins))
       decoder.decode(frame, true)
-      stay() using r.copy(decoder = Some(decoder))
-    case Event(Frame(frame, _), Running(minCount, Some(decoder: VideoDecoderContext))) if frame.length > 0 =>
+      stay() using Running(decoder)
+    case Event(Frame(frame), Running(decoder)) if frame.length > 0 =>
       // Frame with existing decoder. Just decode. (Teehee--I said ``Just``.)
       decoder.decode(frame, true)
       stay()
-    case Event(Frame(_, _), Running(_, Some(decoder))) =>
+    case Event(Frame(_), Running(decoder)) =>
       // Last frame
       decoder.close()
       goto(Completed)
@@ -126,7 +125,6 @@ private[core] class RecogSessionActor(amqpConnection: ActorRef, jabberActor: Act
   // unhandled events in the states
   whenUnhandled {
     case Event(StateTimeout, _) => goto(Aborted)
-    case Event(GetInfo, _) => sender ! "OK"; stay()
   }
 
   // cleanup
